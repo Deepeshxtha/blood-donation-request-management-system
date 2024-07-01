@@ -1,11 +1,17 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'page/login_page.dart';
 import 'page/donor_registration_screen.dart';
 import 'page/request_blood_screen.dart';
 import 'page/maps_screen.dart';
 import 'page/request_blood_dashboard_screen.dart';
-import 'widgets/custom_navigation_bar.dart';
+import 'page/custom_navigation_bar.dart';
 
-void main() {
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  
   runApp(BloodBankApp());
 }
 
@@ -17,8 +23,10 @@ class BloodBankApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.red,
       ),
-      home: MyHomePage(),
+      initialRoute: '/login', // Set initial route to login page
       routes: {
+        '/login': (context) => LoginPage(),
+        '/home': (context) => MyHomePage(), // Define home route
         '/donorRegistration': (context) => DonorRegistrationScreen(),
         '/requestBlood': (context) => RequestBloodScreen(),
         '/mapsScreen': (context) => MapScreen(),
@@ -40,7 +48,7 @@ class MyHomePage extends StatelessWidget {
           'Blood Bank Management System',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 15,
+            fontSize: 19,
             color: Colors.white,
           ),
         ),
@@ -129,11 +137,6 @@ class MyHomePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(height: 200),
-            Text(
-              'Welcome to the BBMS!',
-              style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.green),
-              textAlign: TextAlign.center,
-            ),
             SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: () {

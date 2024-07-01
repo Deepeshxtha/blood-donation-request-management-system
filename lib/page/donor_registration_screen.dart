@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class DonorRegistrationScreen extends StatelessWidget {
   @override
@@ -30,6 +32,26 @@ class _DonorRegistrationFormState extends State<DonorRegistrationForm> {
   String _selectedBloodGroup = '';
   String _phoneNumber = '';
   String _weight = '';
+  File? _medicalHistoryImage;
+  String _email = '';
+  String _password = '';
+  String _confirmPassword = '';
+  bool _isPasswordHidden = true;
+  bool _isConfirmPasswordHidden = true;
+
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      if (pickedFile != null) {
+        _medicalHistoryImage = File(pickedFile.path);
+      } else {
+        print('No image selected.');
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +61,6 @@ class _DonorRegistrationFormState extends State<DonorRegistrationForm> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-
             TextFormField(
               decoration: InputDecoration(
                 labelText: 'Full Name',
@@ -90,7 +111,7 @@ class _DonorRegistrationFormState extends State<DonorRegistrationForm> {
                 labelText: 'Gender',
                 hintText: 'Select Your Gender',
               ),
-              items: <String>['Male', 'Female', 'other']
+              items: <String>['Male', 'Female', 'Other']
                   .map((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
@@ -144,6 +165,67 @@ class _DonorRegistrationFormState extends State<DonorRegistrationForm> {
                 }
                 return null;
               },
+              onChanged: (value) {
+                _email = value ?? '';
+              },
+            ),
+            SizedBox(height: 12.0),
+            TextFormField(
+              decoration: InputDecoration(
+                labelText: 'Password',
+                hintText: 'Enter your password',
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _isPasswordHidden ? Icons.visibility : Icons.visibility_off,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _isPasswordHidden = !_isPasswordHidden;
+                    });
+                  },
+                ),
+              ),
+              obscureText: _isPasswordHidden,
+              validator: (value) {
+                if (value?.isEmpty ?? true) {
+                  return 'Please enter your password';
+                } else if (value!.length < 6) {
+                  return 'Password must be at least 6 characters';
+                }
+                return null;
+              },
+              onChanged: (value) {
+                _password = value ?? '';
+              },
+            ),
+            SizedBox(height: 12.0),
+            TextFormField(
+              decoration: InputDecoration(
+                labelText: 'Confirm Password',
+                hintText: 'Re-enter your password',
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _isConfirmPasswordHidden ? Icons.visibility : Icons.visibility_off,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _isConfirmPasswordHidden = !_isConfirmPasswordHidden;
+                    });
+                  },
+                ),
+              ),
+              obscureText: _isConfirmPasswordHidden,
+              validator: (value) {
+                if (value?.isEmpty ?? true) {
+                  return 'Please confirm your password';
+                } else if (value != _password) {
+                  return 'Passwords do not match';
+                }
+                return null;
+              },
+              onChanged: (value) {
+                _confirmPassword = value ?? '';
+              },
             ),
             SizedBox(height: 12.0),
             TextFormField(
@@ -179,17 +261,28 @@ class _DonorRegistrationFormState extends State<DonorRegistrationForm> {
               },
             ),
             SizedBox(height: 12.0),
-            TextFormField(
-              decoration: InputDecoration(
-                labelText: 'Medical History',
-                hintText: 'Enter relevant medical history',
+            Text('Blood Group Report Compulsory :'),
+            SizedBox(height: 8.0),
+            GestureDetector(
+              onTap: _pickImage,
+              child: Container(
+                height: 150,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: _medicalHistoryImage != null
+                    ? Image.file(
+                  _medicalHistoryImage!,
+                  fit: BoxFit.cover,
+                )
+                    : Center(
+                  child: Text(
+                    'Tap to select an image',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ),
               ),
-              validator: (value) {
-                if (value?.isEmpty ?? true) {
-                  return 'Please enter relevant medical history';
-                }
-                return null;
-              },
             ),
             SizedBox(height: 12.0),
             TextFormField(
@@ -263,7 +356,7 @@ class _DonorRegistrationFormState extends State<DonorRegistrationForm> {
                     ),
                   );
                   // Navigate to home screen after registration
-                  Navigator.of(context).popUntil(ModalRoute.withName('/'));
+                  Navigator.pushReplacementNamed(context, '/login'); // Replace '/login' with your actual login screen route
                 }
               },
               style: ButtonStyle(),
